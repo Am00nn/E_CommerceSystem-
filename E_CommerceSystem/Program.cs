@@ -80,6 +80,12 @@ namespace E_CommerceSystem
             // Register services and repositories for dependency injection
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IProductRepo, ProductRepo>();       // Repository Registration
+            builder.Services.AddScoped<IProductService, ProductService>(); // Service Registration
+
+
+
+
 
             // 2. Build the application
             var app = builder.Build();
