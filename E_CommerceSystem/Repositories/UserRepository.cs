@@ -12,13 +12,22 @@ namespace E_CommerceSystem.Repositories
         }
 
         // Add User
+        //public User AddUser(User user)
+        //{
+        //    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password); // Hash the password
+        //    _context.Users.Add(user);
+        //    _context.SaveChanges();
+        //    return user;
+        //}
+
         public User AddUser(User user)
         {
-            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password); // Hash the password
             _context.Users.Add(user);
             _context.SaveChanges();
             return user;
         }
+
+
 
         // Get All Users
         public List<User> GetAllUsers()

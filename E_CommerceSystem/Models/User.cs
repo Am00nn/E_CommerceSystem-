@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace E_CommerceSystem.Models
 {
     public class User
     {
+
         [Key]
+        [JsonIgnore]
         public int UId { get; set; }
 
         [Required]
@@ -33,13 +36,15 @@ namespace E_CommerceSystem.Models
         public string Role { get; set; }
 
 
-
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public ICollection<Order> Orders { get; set; }
 
-        public ICollection<Review> Reviews { get; set; }
+        [JsonIgnore]
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+
+        [JsonIgnore]
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
 
     }
