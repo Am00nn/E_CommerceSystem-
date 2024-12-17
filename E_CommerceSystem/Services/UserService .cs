@@ -119,29 +119,60 @@ namespace E_CommerceSystem.Services
             return "User registered successfully.";
         }
 
+        //public string Login(LoginRequestDto request)
+        //{
+        //    var user = _userRepository.GetUserByEmail(request.U_Email);
+        //    if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+        //        throw new Exception("Invalid email or password.");
+
+        //    var tokenHandler = new JwtSecurityTokenHandler();
+        //    var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]);
+        //    var tokenDescriptor = new SecurityTokenDescriptor
+        //    {
+        //        Subject = new ClaimsIdentity(new[]
+        //        {
+        //            new Claim(ClaimTypes.NameIdentifier, user.UId.ToString()),
+        //            new Claim(ClaimTypes.Email, user.U_Email),
+        //            new Claim(ClaimTypes.Role, user.Role)
+        //        }),
+        //        Expires = DateTime.UtcNow.AddHours(2),
+        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        //    };
+
+        //    var token = tokenHandler.CreateToken(tokenDescriptor);
+        //    return tokenHandler.WriteToken(token);
+        //}
+
+
         public string Login(LoginRequestDto request)
         {
             var user = _userRepository.GetUserByEmail(request.U_Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-                throw new Exception("Invalid email or password.");
+                throw new Exception("Invalid credentials");
 
+            // Generate JWT Token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]);
+            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]); // Use the same key here
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.UId.ToString()),
-                    new Claim(ClaimTypes.Email, user.U_Email),
-                    new Claim(ClaimTypes.Role, user.Role)
-                }),
+            new Claim(ClaimTypes.NameIdentifier, user.UId.ToString()),
+            new Claim(ClaimTypes.Email, user.U_Email),
+            new Claim(ClaimTypes.Role, user.Role)
+        }),
                 Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Issuer = _configuration["JwtSettings:Issuer"],
+                Audience = _configuration["JwtSettings:Audience"],
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
 
         public User GetUserById(int id)
         {
