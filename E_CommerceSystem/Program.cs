@@ -82,6 +82,8 @@ namespace E_CommerceSystem
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IProductRepo, ProductRepo>();       // Repository Registration
             builder.Services.AddScoped<IProductService, ProductService>(); // Service Registration
+            builder.Services.AddScoped<IOrderRepo, OrderRepo>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
 
 
 

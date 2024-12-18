@@ -1,22 +1,27 @@
 ﻿using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace E_CommerceSystem.Models
 {
     public class Order
     {
-        [Key]   
+        [Key]
+        [JsonIgnore]
         public int Order_Id { get; set; }
 
         [Required]
-
+      
         [ForeignKey("User")]
+        [JsonIgnore]
         public int UserId { get; set; }
+
+        [JsonIgnore]
         public User User { get; set; }
 
         [Required]
-        public DateTime Orderdate { get; set; }
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
 
         [Required]
@@ -26,7 +31,9 @@ namespace E_CommerceSystem.Models
         public decimal TotalAmount  { get; set; }
 
 
-        public ICollection<OrderProduct> OrderProduct { get; set; } 
+        
+
+        public List<OrderProduct> OrderItems { get; set; } = new List<OrderProduct>();
 
 
 
