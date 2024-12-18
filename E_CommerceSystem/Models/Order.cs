@@ -8,13 +8,13 @@ namespace E_CommerceSystem.Models
     public class Order
     {
         [Key]
-        [JsonIgnore]
+        
         public int Order_Id { get; set; }
 
         [Required]
       
         [ForeignKey("User")]
-        [JsonIgnore]
+        
         public int UserId { get; set; }
 
         [JsonIgnore]

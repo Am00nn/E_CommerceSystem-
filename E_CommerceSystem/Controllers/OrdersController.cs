@@ -1,7 +1,9 @@
-﻿using E_CommerceSystem.Models;
+﻿using E_CommerceSystem.Helpers;
+using E_CommerceSystem.Models;
 using E_CommerceSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace E_CommerceSystem.Controllers
 {
@@ -20,29 +22,45 @@ namespace E_CommerceSystem.Controllers
             _orderService = orderService;
         }
 
-        // add a new order for the authenticated user 
+
         [HttpPost]
-        public IActionResult AddOrder([FromBody] List<OrderProduct> order_product )
+        [Authorize]
+        public IActionResult PlaceOrder([FromBody] List<OrderProduct> orderItems)
         {
             try
             {
-                // Extract the U_ID from the authenticated user's claims
-                var U_ID = int.Parse(User.Claims.First(c => c.Type == "NameIdentifier").Value);
+                // Get the authenticated user's ID
+                var token = Helper_Functions.ExtractTokenFromRequest(Request);
+                var userId = Helper_Functions.GetUserIDFromToken(token);    
 
+                // Validate input
+                if (orderItems == null || !orderItems.Any())
+                    return BadRequest("Order items cannot be empty.");
 
-                // add order using the order service
-                var order = _orderService.Add_Order(U_ID, order_product);
+                foreach (var item in orderItems)
+                {
+                    if (item.PID <= 0)
+                        return BadRequest("Invalid Product ID.");
+                    if (item.Quantity <= 0)
+                        return BadRequest("Quantity must be greater than 0.");
+                }
 
+               
+                // Add the order
+                var newOrder = _orderService.Add_Order(int.Parse(userId), orderItems);
 
-                // Created response with the order details
-
-                return CreatedAtAction(nameof(GetOrderDetails), new { ID = order.Order_Id }, order);
+                return CreatedAtAction(nameof(GetOrderDetails), new { O_ID = newOrder.Order_Id }, newOrder);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+
+
+
+
 
         // Get all orders for a user by the authenticated user
         [HttpGet]
@@ -97,6 +115,7 @@ namespace E_CommerceSystem.Controllers
                 return NotFound(new { Error = ex.Message });
             }
         }
+
     }
 
 
