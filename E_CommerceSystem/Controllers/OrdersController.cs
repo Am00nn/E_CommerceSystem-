@@ -30,28 +30,37 @@ namespace E_CommerceSystem.Controllers
             try
             {
                 // Get the authenticated user's ID
+
                 var token = Helper_Functions.ExtractTokenFromRequest(Request);
+
                 var userId = Helper_Functions.GetUserIDFromToken(token);    
 
                 // Validate input
+
                 if (orderItems == null || !orderItems.Any())
+
                     return BadRequest("Order items cannot be empty.");
 
                 foreach (var item in orderItems)
                 {
                     if (item.PID <= 0)
                         return BadRequest("Invalid Product ID.");
+
                     if (item.Quantity <= 0)
+
                         return BadRequest("Quantity must be greater than 0.");
                 }
 
                
                 // Add the order
+
                 var newOrder = _orderService.Add_Order(int.Parse(userId), orderItems);
+
 
                 return CreatedAtAction(nameof(GetOrderDetails), new { O_ID = newOrder.Order_Id }, newOrder);
             }
             catch (Exception ex)
+
             {
                 return BadRequest(new { Error = ex.Message });
             }
@@ -69,21 +78,30 @@ namespace E_CommerceSystem.Controllers
             try
             {
 
-                // Retrieve the U_ID from the authenticated user's claims
-                var U_ID = int.Parse(User.Claims.First(c => c.Type == "NameIdentifier").Value);
+                // Get the authenticated user's ID
 
-               // add order using the order service
-                var Userorders = _orderService.GetOrdersFromSpecificUser(U_ID);
+                var token = Helper_Functions.ExtractTokenFromRequest(Request);
+
+                var userId = Helper_Functions.GetUserIDFromToken(token);
+
+
+                // add order using the order service
+
+                var Userorders = _orderService.GetOrdersFromSpecificUser(int.Parse(userId));
 
 
 
                 // 201 Created response with the order details
+
                 return Ok(Userorders);
+
+
             }
             catch (Exception ex)
             {
 
                 // 400 Bad Request response 
+
 
                 return Unauthorized(new { Error = ex.Message });
             }
@@ -93,16 +111,18 @@ namespace E_CommerceSystem.Controllers
        
         
         [HttpGet("{O_ID}")]
+
         public IActionResult GetOrderDetails(int O_ID)
         {
             try
             {
 
-                var U_ID = int.Parse(User.Claims.First(c => c.Type == "NameIdentifier").Value);
+                var token = Helper_Functions.ExtractTokenFromRequest(Request);
+                var userId = Helper_Functions.GetUserIDFromToken(token);
 
                 // order details using the order service
 
-                var order_details = _orderService.GetOrderDetails(O_ID, U_ID);
+                var order_details = _orderService.GetOrderDetails(O_ID, int.Parse(userId));
 
 
                 return Ok(order_details);
